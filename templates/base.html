@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Smart Campus Complaint Portal</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+
+</head>
+
+
+<body>
+
+    <!-- Navigation Bar -->
+
+    <nav>
+
+        <h2>🏫 Smart Campus Portal</h2>
+
+
+        <div class="nav-links">
+
+            <a href="{{ url_for('home') }}">
+                Home
+            </a>
+
+
+            {% if session.get("user_id") %}
+
+                <!-- Logged In User -->
+
+                {% if session.get("user_role") == "student" %}
+
+                    <a href="{{ url_for('student_dashboard') }}">
+                        Dashboard
+                    </a>
+
+                    <a href="{{ url_for('my_complaints') }}">
+                        My Complaints
+                    </a>
+
+
+                {% elif session.get("user_role") == "staff" %}
+
+                    <a href="{{ url_for('staff_dashboard') }}">
+                        Staff Dashboard
+                    </a>
+
+
+                {% elif session.get("user_role") == "admin" %}
+
+                    <a href="{{ url_for('admin_dashboard') }}">
+                        Admin Dashboard
+                    </a>
+
+                {% endif %}
+
+
+                <a href="{{ url_for('logout') }}">
+                    Logout
+                </a>
+
+
+            {% else %}
+
+                <!-- Not Logged In -->
+
+                <a href="{{ url_for('login') }}">
+                    Login
+                </a>
+
+                <a href="{{ url_for('register') }}">
+                    Register
+                </a>
+
+            {% endif %}
+
+        </div>
+
+    </nav>
+
+
+    <!-- Flash Messages -->
+
+    {% with messages = get_flashed_messages() %}
+
+        {% if messages %}
+
+            {% for message in messages %}
+
+                <div class="flash-message">
+                    {{ message }}
+                </div>
+
+            {% endfor %}
+
+        {% endif %}
+
+    {% endwith %}
+
+
+    <!-- Main Content -->
+
+    <main>
+
+        {% block content %}
+        {% endblock %}
+
+    </main>
+
+
+</body>
+
+</html>

@@ -1,0 +1,466 @@
+/* =========================
+   SMART CAMPUS PORTAL
+========================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f7fb;
+    color: #222;
+}
+
+/* =========================
+   NAVBAR
+========================= */
+
+nav {
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    color: white;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 15px 8%;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+}
+
+nav h2 {
+    font-size: 22px;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.nav-links a {
+    color: white;
+    text-decoration: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: 0.3s;
+}
+
+.nav-links a:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+/* =========================
+   MAIN
+========================= */
+
+main {
+    padding: 40px 8%;
+    min-height: 85vh;
+}
+
+/* =========================
+   BUTTON
+========================= */
+
+.btn,
+button {
+    display: inline-block;
+
+    background: linear-gradient(135deg, #2563eb, #1e40af);
+    color: white;
+
+    padding: 10px 20px;
+
+    border: none;
+    border-radius: 8px;
+
+    text-decoration: none;
+    cursor: pointer;
+
+    transition: 0.3s;
+
+    font-size: 15px;
+}
+
+.btn:hover,
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(37,99,235,0.3);
+}
+
+/* =========================
+   FORM
+========================= */
+
+.form-container {
+    max-width: 850px;
+
+    margin: auto;
+
+    background: white;
+
+    padding: 35px;
+
+    border-radius: 15px;
+
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+}
+
+.form-container h2 {
+    margin-bottom: 25px;
+    color: #1e3c72;
+}
+
+/* =========================
+   INPUTS
+========================= */
+
+input,
+select,
+textarea {
+    width: 100%;
+
+    padding: 12px;
+
+    margin-top: 7px;
+    margin-bottom: 18px;
+
+    border: 1px solid #d1d5db;
+
+    border-radius: 8px;
+
+    font-size: 15px;
+
+    outline: none;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: #2563eb;
+
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+}
+
+/* =========================
+   DASHBOARD
+========================= */
+
+.dashboard {
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fit, minmax(220px, 1fr));
+
+    gap: 22px;
+
+    margin-top: 25px;
+}
+
+/* =========================
+   CARD
+========================= */
+
+.card {
+    background: white;
+
+    padding: 25px;
+
+    border-radius: 15px;
+
+    box-shadow:
+        0 5px 20px rgba(0,0,0,0.08);
+
+    transition: 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-6px);
+
+    box-shadow:
+        0 12px 30px rgba(0,0,0,0.12);
+}
+
+.card h3 {
+    color: #1e3c72;
+
+    margin-bottom: 12px;
+}
+
+.card h2 {
+    font-size: 32px;
+
+    color: #2563eb;
+}
+
+.card p {
+    color: #666;
+
+    line-height: 1.6;
+}
+
+/* =========================
+   TABLE
+========================= */
+
+table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    margin-top: 20px;
+
+    background: white;
+
+    border-radius: 10px;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 5px 15px rgba(0,0,0,0.05);
+}
+
+th {
+    background: #1e3c72;
+
+    color: white;
+
+    padding: 14px;
+
+    text-align: left;
+}
+
+td {
+    padding: 12px;
+
+    border-bottom:
+        1px solid #eee;
+}
+
+tr:hover {
+    background: #f5f8ff;
+}
+
+/* =========================
+   STATUS
+========================= */
+
+.flash-message {
+    background: #dcfce7;
+
+    color: #166534;
+
+    padding: 12px 18px;
+
+    border-radius: 8px;
+
+    margin-bottom: 20px;
+}
+
+/* =========================
+   HOME HERO
+========================= */
+
+.hero {
+    text-align: center;
+
+    padding: 80px 20px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #1e3c72,
+            #2a5298
+        );
+
+    color: white;
+
+    border-radius: 20px;
+
+    margin-bottom: 40px;
+}
+
+.hero h1 {
+    font-size: 42px;
+
+    margin-bottom: 15px;
+}
+
+.hero p {
+    font-size: 18px;
+
+    margin-bottom: 25px;
+
+    opacity: 0.9;
+}
+
+.hero .btn {
+    background: white;
+
+    color: #1e3c72;
+
+    font-weight: bold;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 768px) {
+
+    nav {
+        flex-direction: column;
+
+        gap: 15px;
+    }
+
+    .nav-links {
+        flex-wrap: wrap;
+
+        justify-content: center;
+    }
+
+    main {
+        padding: 25px 5%;
+    }
+
+    .hero h1 {
+        font-size: 30px;
+    }
+
+    table {
+        font-size: 13px;
+    }
+
+}
+/* =========================
+   CREATIVE DASHBOARD DESIGN
+========================= */
+
+.page-header {
+    margin-bottom: 30px;
+}
+
+.page-header h1 {
+    color: #1e3c72;
+    margin-bottom: 10px;
+    font-size: 32px;
+}
+
+.page-header p {
+    color: #64748b;
+    font-size: 16px;
+}
+
+/* ICON */
+
+.card-icon {
+    font-size: 40px;
+    margin-bottom: 15px;
+}
+
+/* ACTION CARD */
+
+.action-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.action-card::after {
+    content: "";
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    background: rgba(37, 99, 235, 0.05);
+    border-radius: 50%;
+    right: -40px;
+    top: -40px;
+}
+
+/* STATISTICS */
+
+.stats-grid {
+    grid-template-columns:
+        repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.stat-card {
+    text-align: center;
+}
+
+.stat-card p {
+    font-weight: 600;
+    color: #64748b;
+    margin-bottom: 10px;
+}
+
+.stat-card h2 {
+    font-size: 38px;
+    margin-top: 5px;
+}
+
+/* ADMIN ACTION */
+
+.admin-action {
+    text-align: center;
+    padding: 40px;
+}
+
+/* SMOOTH PAGE ANIMATION */
+
+.card {
+    animation: fadeUp 0.5s ease;
+}
+
+@keyframes fadeUp {
+
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+}
+
+/* MOBILE */
+
+@media (max-width: 768px) {
+
+    .page-header h1 {
+        font-size: 25px;
+    }
+
+    .card-icon {
+        font-size: 35px;
+    }
+
+}
+
+
+/* =========================
+   COMPLAINT IMAGE
+========================= */
+
+.complaint-image {
+    width: 100px;
+    height: 70px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+.complaint-image {
+    width: 100px;
+    height: 70px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    cursor: pointer;
+}

@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="page-header">
+
+    <h1>Admin Control Center 👨‍💼</h1>
+
+    <p>
+        Monitor and manage all campus complaints from one place.
+    </p>
+
+</div>
+
+
+<!-- STATISTICS -->
+
+<div class="dashboard stats-grid">
+
+    <div class="card stat-card">
+
+        <div class="card-icon">📊</div>
+
+        <p>Total Complaints</p>
+
+        <h2>{{ total_complaints }}</h2>
+
+    </div>
+
+
+    <div class="card stat-card">
+
+        <div class="card-icon">⏳</div>
+
+        <p>Pending</p>
+
+        <h2>{{ pending_complaints }}</h2>
+
+    </div>
+
+
+    <div class="card stat-card">
+
+        <div class="card-icon">🔧</div>
+
+        <p>In Progress</p>
+
+        <h2>{{ in_progress_complaints }}</h2>
+
+    </div>
+
+
+    <div class="card stat-card">
+
+        <div class="card-icon">✅</div>
+
+        <p>Resolved</p>
+
+        <h2>{{ resolved_complaints }}</h2>
+
+    </div>
+
+</div>
+
+
+<!-- ADMIN ACTION -->
+
+<div class="dashboard">
+
+    <div class="card action-card admin-action">
+
+        <div class="card-icon">
+            📋
+        </div>
+
+        <h3>Manage All Complaints</h3>
+
+        <p>
+            View, monitor and manage all complaints
+            registered in the campus.
+        </p>
+
+        <br>
+
+        <a
+            href="{{ url_for('admin_complaints') }}"
+            class="btn"
+        >
+            View All Complaints ➜
+        </a>
+
+    </div>
+
+</div>
+
+{% endblock %}

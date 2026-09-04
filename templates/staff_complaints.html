@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="form-container">
+
+    <h2>All Campus Complaints</h2>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+
+    {% if complaints %}
+
+    <table border="1" cellpadding="10">
+
+        <tr>
+            <th>ID</th>
+            <th>Category</th>
+            <th>Location</th>
+            <th>Description</th>
+            <th>Priority</th>
+            <th>Current Status</th>
+            <th>Update Status</th>
+            <th>Image</th>
+        </tr>
+
+
+        {% for complaint in complaints %}
+
+        <tr>
+
+            <td>{{ complaint.id }}</td>
+
+            <td>{{ complaint.category }}</td>
+
+            <td>{{ complaint.location }}</td>
+
+            <td>{{ complaint.description }}</td>
+
+            <td>{{ complaint.priority }}</td>
+
+            <td>{{ complaint.status }}</td>
+
+            
+
+
+
+
+
+<td>
+
+    {% if complaint.image %}
+
+        <img
+            src="{{ url_for('static', filename='uploads/' + complaint.image) }}"
+            alt="Complaint Image"
+            width="100"
+        >
+
+    {% else %}
+
+        No Image
+
+    {% endif %}
+
+</td>
+
+
+
+
+
+
+
+            <td>
+
+                <form
+                    action="{{ url_for('update_status', complaint_id=complaint.id) }}"
+                    method="POST"
+                >
+
+                    <select name="status">
+
+                        <option value="Pending"
+                            {% if complaint.status == "Pending" %}
+                                selected
+                            {% endif %}
+                        >
+                            Pending
+                        </option>
+
+
+                        <option value="In Progress"
+                            {% if complaint.status == "In Progress" %}
+                                selected
+                            {% endif %}
+                        >
+                            In Progress
+                        </option>
+
+
+                        <option value="Resolved"
+                            {% if complaint.status == "Resolved" %}
+                                selected
+                            {% endif %}
+                        >
+                            Resolved
+                        </option>
+
+                    </select>
+
+
+                    <button type="submit">
+                        Update
+                    </button>
+
+                </form>
+
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </table>
+
+    {% else %}
+
+        <p>No complaints available.</p>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

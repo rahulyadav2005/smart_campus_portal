@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>Welcome, {{ session.get('user_name') }} 👋</h1>
+        <p>Report and track your campus complaints easily.</p>
+    </div>
+</div>
+
+<div class="dashboard">
+
+    <div class="card action-card">
+        <div class="card-icon">📝</div>
+
+        <h3>Register Complaint</h3>
+
+        <p>
+            Report any campus problem such as water,
+            electricity, cleanliness or maintenance.
+        </p>
+
+        <br>
+
+        <a href="{{ url_for('add_complaint') }}" class="btn">
+            Add Complaint ➜
+        </a>
+    </div>
+
+
+    <div class="card action-card">
+        <div class="card-icon">📋</div>
+
+        <h3>My Complaints</h3>
+
+        <p>
+            View all your registered complaints and
+            check their current status.
+        </p>
+
+        <br>
+
+        <a href="{{ url_for('my_complaints') }}" class="btn">
+            View Complaints ➜
+        </a>
+    </div>
+
+
+    <div class="card action-card">
+        <div class="card-icon">🔍</div>
+
+        <h3>Track Status</h3>
+
+        <p>
+            Track whether your complaint is pending,
+            in progress or resolved.
+        </p>
+
+        <br>
+
+        <a href="{{ url_for('my_complaints') }}" class="btn">
+            Track Now ➜
+        </a>
+    </div>
+
+</div>
+
+{% endblock %}

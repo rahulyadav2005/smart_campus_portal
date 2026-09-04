@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="form-container">
+
+    <h2>My Complaints</h2>
+
+    {% if complaints %}
+
+    <table border="1" cellpadding="10">
+
+        <tr>
+            <th>ID</th>
+            <th>Category</th>
+            <th>Location</th>
+            <th>Description</th>
+            <th>Priority</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Image</th>
+        </tr>
+
+        {% for complaint in complaints %}
+
+        <tr>
+
+            <td>{{ complaint.id }}</td>
+
+            <td>{{ complaint.category }}</td>
+
+            <td>{{ complaint.location }}</td>
+
+            <td>{{ complaint.description }}</td>
+
+            <td>{{ complaint.priority }}</td>
+
+            <td>{{ complaint.status }}</td>
+
+            <td>{{ complaint.created_at }}</td>
+
+            <td>
+
+    {% if complaint.image %}
+
+        <img
+            src="{{ url_for('static', filename='uploads/' + complaint.image) }}"
+            alt="Complaint Image"
+            width="100"
+        >
+
+    {% else %}
+
+        No Image
+
+    {% endif %}
+
+</td>
+
+        </tr>
+
+        {% endfor %}
+
+
+
+    </table>
+
+    {% else %}
+
+        <p>No complaints found.</p>
+
+    {% endif %}
+
+    <br>
+
+    <a href="{{ url_for('add_complaint') }}">
+        Add New Complaint
+    </a>
+
+</div>
+
+{% endblock %}

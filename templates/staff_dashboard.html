@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="page-header">
+
+    <h1>Welcome, {{ session.get('user_name') }} 🔧</h1>
+
+    <p>
+        Manage campus complaints and update maintenance status.
+    </p>
+
+</div>
+
+
+<div class="dashboard">
+
+    <div class="card action-card">
+
+        <div class="card-icon">
+            📋
+        </div>
+
+        <h3>Manage Complaints</h3>
+
+        <p>
+            View all complaints submitted by students.
+        </p>
+
+        <br>
+
+        <a
+            href="{{ url_for('staff_complaints') }}"
+            class="btn"
+        >
+            View Complaints ➜
+        </a>
+
+    </div>
+
+
+    <div class="card action-card">
+
+        <div class="card-icon">
+            🔄
+        </div>
+
+        <h3>Update Status</h3>
+
+        <p>
+            Change complaint status from Pending
+            to In Progress or Resolved.
+        </p>
+
+        <br>
+
+        <a
+            href="{{ url_for('staff_complaints') }}"
+            class="btn"
+        >
+            Update Status ➜
+        </a>
+
+    </div>
+
+
+    <div class="card action-card">
+
+        <div class="card-icon">
+            🛠️
+        </div>
+
+        <h3>Maintenance Work</h3>
+
+        <p>
+            Monitor and resolve campus maintenance
+            issues efficiently.
+        </p>
+
+    </div>
+
+</div>
+
+{% endblock %}
