@@ -40,21 +40,22 @@ app.secret_key = "smart_campus_secret_key"
 # DATABASE CONNECTION
 # ==================================================
 
-# ==================================================
-# DATABASE CONNECTION
-# ==================================================
 
 import os
+from urllib.parse import quote_plus
 
-DB_HOST = os.environ.get("DB_HOST")
-DB_PORT = os.environ.get("DB_PORT", "3306")
-DB_USER = os.environ.get("DB_USER")
-DB_PASSWORD = os.environ.get("DB_PASSWORD")
-DB_NAME = os.environ.get("DB_NAME", "defaultdb")
+DB_HOST = os.getenv("DB_HOST")
+DB_PORT = os.getenv("DB_PORT", "3306")
+DB_USER = os.getenv("DB_USER")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_NAME = os.getenv("DB_NAME", "defaultdb")
+
+DB_USER = quote_plus(DB_USER)
+DB_PASSWORD = quote_plus(DB_PASSWORD)
 
 app.config["SQLALCHEMY_DATABASE_URI"] = (
-    f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-    "?charset=utf8mb4"
+    f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}"
+    f"@{DB_HOST}:{DB_PORT}/{DB_NAME}?charset=utf8mb4"
 )
 
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
@@ -68,8 +69,11 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
-with app.app_context():
-    db.create_all()
+
+# ==================================================
+# DATABASE CONNECTION
+# ==================================================
+
 
 
 # ==================================================
