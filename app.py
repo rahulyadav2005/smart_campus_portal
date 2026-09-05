@@ -32,39 +32,34 @@ app.secret_key = os.getenv(
 # UPLOAD SETTINGS
 # ==================================================
 
-
-import os
-from urllib.parse import quote_plus
-
-DB_HOST = os.getenv("DB_HOST")
-DB_PORT = os.getenv("DB_PORT", "3306")
-DB_USER = os.getenv("DB_USER")
-DB_PASSWORD = os.getenv("DB_PASSWORD")
-DB_NAME = os.getenv("DB_NAME", "defaultdb")
-
-DB_USER = quote_plus(DB_USER)
-DB_PASSWORD = quote_plus(DB_PASSWORD)
-
-app.config["SQLALCHEMY_DATABASE_URI"] = (
-    f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}"
-    f"@{DB_HOST}:{DB_PORT}/{DB_NAME}?charset=utf8mb4"
+UPLOAD_FOLDER = os.path.join(
+    app.root_path,
+    "static",
+    "uploads"
 )
 
-app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-    "connect_args": {
-        "ssl": {
-            "check_hostname": False
-        }
-    }
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+
+os.makedirs(
+    app.config["UPLOAD_FOLDER"],
+    exist_ok=True
+)
+
+ALLOWED_EXTENSIONS = {
+    "png",
+    "jpg",
+    "jpeg",
+    "gif"
 }
 
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-db = SQLAlchemy(app)
+def allowed_file(filename):
+    return (
+        "." in filename
+        and filename.rsplit(".", 1)[1].lower()
+        in ALLOWED_EXTENSIONS
+    )
 
-# ==================================================
-# DATABASE CONNECTION
-# ==================================================
 
 # ==================================================
 # DATABASE CONNECTION
@@ -923,7 +918,3 @@ if __name__ == "__main__":
         ),
         debug=True
     )
-
-
-
-    
