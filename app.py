@@ -40,31 +40,34 @@ app.secret_key = "smart_campus_secret_key"
 # DATABASE CONNECTION
 # ==================================================
 
-from urllib.parse import quote_plus
+# ==================================================
+# DATABASE CONNECTION
+# ==================================================
 
-mysql_password = quote_plus("Rahul2005@#")
+import os
+
+DB_HOST = os.environ.get("DB_HOST")
+DB_PORT = os.environ.get("DB_PORT", "3306")
+DB_USER = os.environ.get("DB_USER")
+DB_PASSWORD = os.environ.get("DB_PASSWORD")
+DB_NAME = os.environ.get("DB_NAME", "defaultdb")
 
 app.config["SQLALCHEMY_DATABASE_URI"] = (
-    f"mysql+pymysql://root:{mysql_password}@localhost/smart_campus_db"
+    f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+    "?charset=utf8mb4"
 )
 
-
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+    "connect_args": {
+        "ssl": {
+            "check_hostname": False
+        }
+    }
+}
 
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
-
-
-
-
-def allowed_file(filename):
-    return (
-        "." in filename
-        and filename.rsplit(".", 1)[1].lower()
-        in ALLOWED_EXTENSIONS
-    )
-
-
 
 
 # ==================================================
