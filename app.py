@@ -8,14 +8,11 @@ from flask import (
     flash,
     session
 )
-
 from flask_sqlalchemy import SQLAlchemy
-
 from werkzeug.security import (
     generate_password_hash,
     check_password_hash
 )
-
 from werkzeug.utils import secure_filename
 import os
 
@@ -26,18 +23,13 @@ import os
 
 app = Flask(__name__)
 
-UPLOAD_FOLDER = os.path.join(app.root_path, "static", "uploads")
-
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
-os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
-
-ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
-
-app.secret_key = "smart_campus_secret_key"
-
+app.secret_key = os.getenv(
+    "SECRET_KEY",
+    "smart_campus_secret_key"
+)
 
 # ==================================================
-# DATABASE CONNECTION
+# UPLOAD SETTINGS
 # ==================================================
 
 
@@ -74,6 +66,52 @@ db = SQLAlchemy(app)
 # DATABASE CONNECTION
 # ==================================================
 
+# ==================================================
+# DATABASE CONNECTION
+# ==================================================
+
+DB_HOST = os.getenv("DB_HOST")
+DB_PORT = os.getenv("DB_PORT", "3306")
+DB_USER = os.getenv("DB_USER")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_NAME = os.getenv("DB_NAME", "defaultdb")
+
+# Prevent None error
+if not DB_HOST:
+    raise RuntimeError("DB_HOST environment variable is missing")
+
+if not DB_USER:
+    raise RuntimeError("DB_USER environment variable is missing")
+
+if not DB_PASSWORD:
+    raise RuntimeError("DB_PASSWORD environment variable is missing")
+
+# Encode username and password
+DB_USER_ENCODED = quote_plus(DB_USER)
+DB_PASSWORD_ENCODED = quote_plus(DB_PASSWORD)
+
+app.config["SQLALCHEMY_DATABASE_URI"] = (
+    f"mysql+pymysql://"
+    f"{DB_USER_ENCODED}:"
+    f"{DB_PASSWORD_ENCODED}@"
+    f"{DB_HOST}:"
+    f"{DB_PORT}/"
+    f"{DB_NAME}"
+    f"?charset=utf8mb4"
+)
+
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+    "connect_args": {
+        "ssl": {
+            "check_hostname": False
+        }
+    }
+}
+
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+
+db = SQLAlchemy(app)
 
 
 # ==================================================
@@ -168,48 +206,93 @@ class Complaint(db.Model):
 
 
 # ==================================================
+# CREATE DATABASE TABLES
+# ==================================================
+
+with app.app_context():
+    db.create_all()
+
+
+# ==================================================
 # HOME
 # ==================================================
 
 @app.route("/")
 def home():
 
-    return render_template("index.html")
+    return render_template(
+        "index.html"
+    )
 
 
 # ==================================================
 # REGISTER
 # ==================================================
 
-@app.route("/register", methods=["GET", "POST"])
+@app.route(
+    "/register",
+    methods=["GET", "POST"]
+)
 def register():
 
     if request.method == "POST":
 
-        name = request.form["name"]
-        email = request.form["email"]
-        password = request.form["password"]
-        role = request.form["role"]
+        name = request.form.get(
+            "name",
+            ""
+        ).strip()
 
-        # Check if email already exists
+        email = request.form.get(
+            "email",
+            ""
+        ).strip().lower()
+
+        password = request.form.get(
+            "password",
+            ""
+        )
+
+        role = request.form.get(
+            "role",
+            "student"
+        )
+
+        # Check empty fields
+
+        if not name or not email or not password:
+
+            flash(
+                "Please fill all required fields!"
+            )
+
+            return redirect(
+                url_for("register")
+            )
+
+        # Check existing email
+
         existing_user = User.query.filter_by(
             email=email
         ).first()
 
         if existing_user:
 
-            flash("Email already registered!")
+            flash(
+                "Email already registered!"
+            )
 
             return redirect(
                 url_for("register")
             )
 
-        # Password hash
+        # Hash password
+
         hashed_password = generate_password_hash(
             password
         )
 
-        # Create new user
+        # Create user
+
         new_user = User(
             name=name,
             email=email,
@@ -217,8 +300,12 @@ def register():
             role=role
         )
 
-        # Save in MySQL
-        db.session.add(new_user)
+        # Save user
+
+        db.session.add(
+            new_user
+        )
+
         db.session.commit()
 
         flash(
@@ -229,56 +316,84 @@ def register():
             url_for("login")
         )
 
-    return render_template("register.html")
+    return render_template(
+        "register.html"
+    )
 
 
 # ==================================================
 # LOGIN
 # ==================================================
 
-@app.route("/login", methods=["GET", "POST"])
+@app.route(
+    "/login",
+    methods=["GET", "POST"]
+)
 def login():
 
     if request.method == "POST":
 
-        email = request.form["email"]
-        password = request.form["password"]
+        email = request.form.get(
+            "email",
+            ""
+        ).strip().lower()
 
-        # Find user using email
+        password = request.form.get(
+            "password",
+            ""
+        )
+
+        # Find user
+
         user = User.query.filter_by(
             email=email
         ).first()
 
         # Check password
+
         if user and check_password_hash(
             user.password,
             password
         ):
 
-            # Save user information in session
+            # Save session
+
             session["user_id"] = user.id
             session["user_role"] = user.role
             session["user_name"] = user.name
 
-            flash("Login successful!")
+            flash(
+                "Login successful!"
+            )
 
-            # Role based dashboard
+            # Student
+
             if user.role == "student":
 
                 return redirect(
-                    url_for("student_dashboard")
+                    url_for(
+                        "student_dashboard"
+                    )
                 )
+
+            # Staff
 
             elif user.role == "staff":
 
                 return redirect(
-                    url_for("staff_dashboard")
+                    url_for(
+                        "staff_dashboard"
+                    )
                 )
+
+            # Admin
 
             elif user.role == "admin":
 
                 return redirect(
-                    url_for("admin_dashboard")
+                    url_for(
+                        "admin_dashboard"
+                    )
                 )
 
         else:
@@ -287,7 +402,9 @@ def login():
                 "Invalid email or password!"
             )
 
-    return render_template("login.html")
+    return render_template(
+        "login.html"
+    )
 
 
 # ==================================================
@@ -299,7 +416,9 @@ def logout():
 
     session.clear()
 
-    flash("You have been logged out.")
+    flash(
+        "You have been logged out."
+    )
 
     return redirect(
         url_for("home")
@@ -315,7 +434,9 @@ def student_dashboard():
 
     if "user_id" not in session:
 
-        flash("Please login first!")
+        flash(
+            "Please login first!"
+        )
 
         return redirect(
             url_for("login")
@@ -335,7 +456,9 @@ def staff_dashboard():
 
     if "user_id" not in session:
 
-        flash("Please login first!")
+        flash(
+            "Please login first!"
+        )
 
         return redirect(
             url_for("login")
@@ -346,8 +469,6 @@ def staff_dashboard():
     )
 
 
-
-
 # ==================================================
 # ADMIN DASHBOARD
 # ==================================================
@@ -356,16 +477,31 @@ def staff_dashboard():
 def admin_dashboard():
 
     # Check login
-    if "user_id" not in session:
-        flash("Please login first!")
-        return redirect(url_for("login"))
 
-    # Only admin can access
+    if "user_id" not in session:
+
+        flash(
+            "Please login first!"
+        )
+
+        return redirect(
+            url_for("login")
+        )
+
+    # Only admin
+
     if session.get("user_role") != "admin":
-        flash("Access denied!")
-        return redirect(url_for("home"))
+
+        flash(
+            "Access denied!"
+        )
+
+        return redirect(
+            url_for("home")
+        )
 
     # Complaint counts
+
     total_complaints = Complaint.query.count()
 
     pending_complaints = Complaint.query.filter_by(
@@ -389,8 +525,6 @@ def admin_dashboard():
     )
 
 
-
-
 # ==================================================
 # ADMIN - VIEW ALL COMPLAINTS
 # ==================================================
@@ -399,16 +533,31 @@ def admin_dashboard():
 def admin_complaints():
 
     # Check login
+
     if "user_id" not in session:
-        flash("Please login first!")
-        return redirect(url_for("login"))
 
-    # Only admin can access
+        flash(
+            "Please login first!"
+        )
+
+        return redirect(
+            url_for("login")
+        )
+
+    # Only admin
+
     if session.get("user_role") != "admin":
-        flash("Access denied!")
-        return redirect(url_for("home"))
 
-    # Get all complaints
+        flash(
+            "Access denied!"
+        )
+
+        return redirect(
+            url_for("home")
+        )
+
+    # Get complaints
+
     complaints = Complaint.query.order_by(
         Complaint.created_at.desc()
     ).all()
@@ -419,75 +568,136 @@ def admin_complaints():
     )
 
 
-
 # ==================================================
 # ADMIN - DELETE COMPLAINT
 # ==================================================
 
-@app.route("/delete-complaint/<int:complaint_id>", methods=["POST"])
+@app.route(
+    "/delete-complaint/<int:complaint_id>",
+    methods=["POST"]
+)
 def delete_complaint(complaint_id):
 
     # Check login
+
     if "user_id" not in session:
-        flash("Please login first!")
-        return redirect(url_for("login"))
+
+        flash(
+            "Please login first!"
+        )
+
+        return redirect(
+            url_for("login")
+        )
 
     # Only admin
+
     if session.get("user_role") != "admin":
-        flash("Access denied!")
-        return redirect(url_for("home"))
+
+        flash(
+            "Access denied!"
+        )
+
+        return redirect(
+            url_for("home")
+        )
 
     # Find complaint
+
     complaint = Complaint.query.get_or_404(
         complaint_id
     )
 
-    # Delete complaint
-    db.session.delete(complaint)
+    # Delete
+
+    db.session.delete(
+        complaint
+    )
+
     db.session.commit()
 
-    flash("Complaint deleted successfully!")
+    flash(
+        "Complaint deleted successfully!"
+    )
 
     return redirect(
         url_for("admin_complaints")
     )
 
+
 # ==================================================
 # ADD COMPLAINT
 # ==================================================
 
-@app.route("/add-complaint", methods=["GET", "POST"])
+@app.route(
+    "/add-complaint",
+    methods=["GET", "POST"]
+)
 def add_complaint():
 
+    # Check login
+
     if "user_id" not in session:
-        flash("Please login first!")
-        return redirect(url_for("login"))
+
+        flash(
+            "Please login first!"
+        )
+
+        return redirect(
+            url_for("login")
+        )
 
     if request.method == "POST":
 
-        category = request.form["category"]
-        location = request.form["location"]
-        description = request.form["description"]
-        priority = request.form["priority"]
+        category = request.form.get(
+            "category",
+            ""
+        ).strip()
+
+        location = request.form.get(
+            "location",
+            ""
+        ).strip()
+
+        description = request.form.get(
+            "description",
+            ""
+        ).strip()
+
+        priority = request.form.get(
+            "priority",
+            "Medium"
+        )
+
+        # Image
 
         image_filename = None
 
-        # Image upload
         if "image" in request.files:
 
             file = request.files["image"]
 
-            if file and file.filename != "":
+            if (
+                file
+                and file.filename
+                and file.filename != ""
+            ):
 
-                if allowed_file(file.filename):
+                if allowed_file(
+                    file.filename
+                ):
 
-                    filename = secure_filename(file.filename)
+                    filename = secure_filename(
+                        file.filename
+                    )
+
+                    file_path = os.path.join(
+                        app.config["UPLOAD_FOLDER"],
+                        filename
+                    )
 
                     file.save(
-                        os.path.join(
-                            app.config["UPLOAD_FOLDER"],
-                            filename
-                        )
+                        file_path
                     )
 
                     image_filename = filename
@@ -495,7 +705,9 @@ def add_complaint():
                 else:
 
                     flash(
-                        "Invalid image format! Please upload PNG, JPG, JPEG or GIF."
+                        "Invalid image format! "
+                        "Please upload PNG, JPG, "
+                        "JPEG or GIF."
                     )
 
                     return redirect(
@@ -503,27 +715,43 @@ def add_complaint():
                     )
 
         # Create complaint
+
         new_complaint = Complaint(
+
             user_id=session["user_id"],
+
             category=category,
+
             location=location,
+
             description=description,
+
             priority=priority,
+
             image=image_filename,
+
             status="Pending"
         )
 
-        db.session.add(new_complaint)
+        # Save
+
+        db.session.add(
+            new_complaint
+        )
+
         db.session.commit()
 
-        flash("Complaint submitted successfully!")
+        flash(
+            "Complaint submitted successfully!"
+        )
 
         return redirect(
             url_for("my_complaints")
         )
 
-    return render_template("add_complaint.html")
-
+    return render_template(
+        "add_complaint.html"
+    )
 
 
 # ==================================================
@@ -534,15 +762,19 @@ def add_complaint():
 def my_complaints():
 
     # Check login
+
     if "user_id" not in session:
 
-        flash("Please login first!")
+        flash(
+            "Please login first!"
+        )
 
         return redirect(
             url_for("login")
         )
 
-    # Get current student's complaints
+    # Get student's complaints
+
     complaints = Complaint.query.filter_by(
         user_id=session["user_id"]
     ).order_by(
@@ -554,6 +786,7 @@ def my_complaints():
         complaints=complaints
     )
 
+
 # ==================================================
 # STAFF - VIEW COMPLAINTS
 # ==================================================
@@ -562,16 +795,31 @@ def my_complaints():
 def staff_complaints():
 
     # Check login
-    if "user_id" not in session:
-        flash("Please login first!")
-        return redirect(url_for("login"))
 
-    # Only staff can access
+    if "user_id" not in session:
+
+        flash(
+            "Please login first!"
+        )
+
+        return redirect(
+            url_for("login")
+        )
+
+    # Only staff
+
     if session.get("user_role") != "staff":
-        flash("Access denied!")
-        return redirect(url_for("home"))
+
+        flash(
+            "Access denied!"
+        )
+
+        return redirect(
+            url_for("home")
+        )
 
     # Get all complaints
+
     complaints = Complaint.query.order_by(
         Complaint.created_at.desc()
     ).all()
@@ -581,39 +829,82 @@ def staff_complaints():
         complaints=complaints
     )
 
+
 # ==================================================
 # STAFF - UPDATE COMPLAINT STATUS
 # ==================================================
 
-@app.route("/update-status/<int:complaint_id>", methods=["POST"])
+@app.route(
+    "/update-status/<int:complaint_id>",
+    methods=["POST"]
+)
 def update_status(complaint_id):
 
     # Check login
+
     if "user_id" not in session:
-        flash("Please login first!")
-        return redirect(url_for("login"))
+
+        flash(
+            "Please login first!"
+        )
+
+        return redirect(
+            url_for("login")
+        )
 
     # Only staff
+
     if session.get("user_role") != "staff":
-        flash("Access denied!")
-        return redirect(url_for("home"))
+
+        flash(
+            "Access denied!"
+        )
+
+        return redirect(
+            url_for("home")
+        )
+
+    # Find complaint
 
     complaint = Complaint.query.get_or_404(
         complaint_id
     )
 
-    new_status = request.form["status"]
+    # Get new status
+
+    new_status = request.form.get(
+        "status"
+    )
+
+    allowed_statuses = {
+        "Pending",
+        "In Progress",
+        "Resolved"
+    }
+
+    if new_status not in allowed_statuses:
+
+        flash(
+            "Invalid complaint status!"
+        )
+
+        return redirect(
+            url_for("staff_complaints")
+        )
+
+    # Update
 
     complaint.status = new_status
 
     db.session.commit()
 
-    flash("Complaint status updated successfully!")
+    flash(
+        "Complaint status updated successfully!"
+    )
 
     return redirect(
         url_for("staff_complaints")
     )
-
 
 
 # ==================================================
@@ -623,6 +914,13 @@ def update_status(complaint_id):
 if __name__ == "__main__":
 
     app.run(
+        host="0.0.0.0",
+        port=int(
+            os.getenv(
+                "PORT",
+                5000
+            )
+        ),
         debug=True
     )
 
